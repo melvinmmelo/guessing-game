@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Alert, StyleSheet, View, FlatList, Text } from "react-native";
+import { Alert, StyleSheet, View, FlatList, useWindowDimensions } from "react-native";
 import Title from '../components/ui/Title'
 import NumberContainer from '../components/game/NumberContainer';
 import PrimaryButton from '../components/ui/PrimaryButton';
@@ -28,6 +28,7 @@ function GameSceen({ userNumber, onGameOver }) {
   const initialGuess = generateRandomBetween(1, 100, userNumber);
   const [currentGuess, setCurrentGuess] = useState(initialGuess);
   const [guessRounds, setGuessRounds] = useState([initialGuess]);
+  const { width, height } = useWindowDimensions()
 
 
   // this will be rendered only when currentGuess, userNumber and onGameOver changes
@@ -71,12 +72,8 @@ function GameSceen({ userNumber, onGameOver }) {
 
   const guessRoundListLength = guessRounds.length;
 
-
-
-  return (
-    <View style={styles.screen}>
-      <Title>Opponent's Guess</Title>
-
+  let content = (
+    <>
       <NumberContainer>{currentGuess}</NumberContainer>
 
       <Card>
@@ -94,14 +91,40 @@ function GameSceen({ userNumber, onGameOver }) {
           </View>
         </View>
       </Card>
+    </>
+  );
 
+  if ( width > 500 ){
+    content = (
+      <>
+        <View style={styles.buttonsContainerWide}>
+          <View style={styles.buttonContainer}>
+            <PrimaryButton onPress={nextGuessHandler.bind(this, "lower")}>
+              <Ionicons name="md-remove" size={24} color="white" />
+            </PrimaryButton>
+          </View>
+          <NumberContainer>{currentGuess}</NumberContainer>
+          <View style={styles.buttonContainer}>
+            <PrimaryButton onPress={nextGuessHandler.bind(this, "greater")}>
+              <Ionicons name="md-add" size={24} color="white" />
+            </PrimaryButton>
+          </View>
+        </View>
+      </>
+    );
+  }
+
+  return (
+    <View style={styles.screen}>
+      <Title>Opponent's Guess</Title>
+      {content}
       <View style={styles.listContainer}>
         <FlatList
           data={guessRounds}
           renderItem={(itemData) => (
             <GuessLogItem
-             roundNumber={guessRoundListLength - itemData.index}
-             guess={itemData.item}
+              roundNumber={guessRoundListLength - itemData.index}
+              guess={itemData.item}
             >
               {itemData.item}
             </GuessLogItem>
@@ -119,7 +142,7 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     padding: 24,
-    marginTop: 100
+    alignItems: 'center'
   },
   buttonsContainer: {
     flexDirection: "row",
@@ -130,5 +153,9 @@ const styles = StyleSheet.create({
   listContainer: {
     flex: 1,
     padding: 16,
+  },
+  buttonsContainerWide:{
+    flexDirection: 'row',
+    alignItems: 'center'
   }
 });
